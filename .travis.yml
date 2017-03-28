@@ -5,7 +5,8 @@ rust:
 before_install:
     - sudo apt-get install libssh2-1-dev
 script:
-  - RUST_BACKTRACE=1 cargo test
+  - if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; make cargo_update; fi
+  - make cargo_update
 notifications:
   email:
     on_failure: change
