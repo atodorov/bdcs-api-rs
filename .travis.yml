@@ -3,10 +3,14 @@ cache: cargo
 rust:
   - nightly
 before_install:
-    - sudo apt-get install libssh2-1-dev
+  - sudo apt-get install libssh2-1-dev
 script:
-  - RUST_BACKTRACE=1 cargo test
+  - if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then make cargo_update; fi
+  - make cargo_update
 notifications:
   email:
     on_failure: change
     on_success: change
+env:
+  global:
+    secure: GhO/kcfQeTtv+nTtkaCRInqqGM4Xfd0MV+Lhx+KY940O/PifWgHaFYhBSX00JyHi8qtlFCWgMnttbZzZblANCHjWFPC9Z74Z4CrdUqsGjO/uW1vYFN1gubnFJ2gYZFKd/66GUvpXMIot8UzSHE2+yx+h9Pt9TTbeUnq0X774FQS4scNLlwdmK66QNH8XHywzCq7hH12jvhrUQSiJSDHmNQlJ/k3abkaUtmscOCwcXcJ05JLnC3VZfJjjEzrtP/4MOUGMt8V46qNWZDEcyB5EBHD2xyXHwVbrlOF5Gumuf4Mg8W8uHKKJz+yH6Q7El+j6Jfm5zZWOcmkpg7/KTrWwrNnRalQR5Bc1xMmDfc9DXm1hRU9XxB/4ReoiIO9RF32ungjdkCemtuu8zqIWB0u1/B+QqALdNw+f+OSJDg6hkEoJNtMYZifRtiPq1/DP/jyKZ5YBDfYPctLQjfqzeVaDTTq0X7GzYMCzRO47gbgyc0cBvmQPNl1cz1J8ywtlCjte4XaHba1mIXoMz6gO7zwfyNQ7oHzcyyI0vDDQaKlBKP2isyfmGpnks/WZqbYvKJ9pSVbweIsVMbK6yhMSg4RCHakS1d/C8R9wRm3gR22NjnmL93a+a7OYMlBhHczYz1ElQ6M5JFU4qMLVCG5axR0iM49oPg3YhFsm3vEKHGOw5bI=

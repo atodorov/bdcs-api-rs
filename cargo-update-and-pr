@@ -1,0 +1,26 @@
+#!/bin/bash
+
+if [ -z "$GITHUB_TOKEN" ]; then
+    echo "GITHUB_TOKEN is not defined"
+    exit 1
+fi
+
+BRANCH_NAME="automated_cargo_update"
+
+git checkout -b $BRANCH_NAME
+cargo update # && cargo test
+
+DIFF=`git diff`
+# changes detected
+if [ -n "$DIFF" ]; then
+    git config --global user.email "atodorov@redhat.com"
+    git config --global user.name "Alexander Todorov"
+
+    git remote add authenticated https://atodorov:$GITHUB_TOKEN@github.com/atodorov/bdcs-api-rs.git
+    git commit -a -m "Auto-update cargo crates"
+    git push authenticated $BRANCH_NAME
+
+    curl -X POST -H "Content-Type: application/json" -H "Authorization: token $GITHUB_TOKEN" \
+         --data '{"title":"Auto-update cargo crates","head":"automated_cargo_update","base":"master", "body":"@atodorov review"}' \
+         https://api.github.com/repos/atodorov/bdcs-api-rs/pulls
+fi
