@@ -1,0 +1,3 @@
+cargo_update:
+	go get github.com/github/hub
+	cargo update && cargo test && git pull-request ...
