@@ -1,0 +1,60 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import json
+import httplib
+
+def send(url, post_data = None):
+    if not os.environ.has_key("GITHUB_TOKEN"):
+        raise Exception("Set the GITHUB_TOKEN variable")
+
+    (proto, host_path) = url.split('//')
+    (host_port, path) = host_path.split('/', 1)
+    path = '/' + path
+
+    if url.startswith('https'):
+        conn = httplib.HTTPSConnection(host_port)
+    else:
+        conn = httplib.HTTPConnection(host_port)
+
+    # GitHub requires a valid UA string
+    headers = {
+        'User-Agent' : 'Mozilla/5.0 (X11; Linux x86_64; rv:10.0.5) Gecko/20120601 Firefox/10.0.5',
+        'Authorization': 'token %s' % os.environ['GITHUB_TOKEN'],
+    }
+
+    method = 'GET'
+    if post_data:
+        method = 'POST'
+        post_data = json.dumps(post_data)
+
+    conn.request(method, path, body=post_data, headers=headers)
+    response = conn.getresponse()
+
+    if (response.status == 404):
+        raise Exception("404 - %s not found" % url)
+
+    result = response.read().decode('UTF-8', 'replace')
+    try:
+        return json.loads(result)
+    except ValueError:
+        return result
+
+if __name__ == "__main__":
+    data = send(
+        "https://api.github.com/repos/atodorov/bdcs-api-rs/pulls",
+        {
+            'title': 'Automated PR',
+            'head': 'cargo_update_test',
+            'base': 'master',
+            'body': 'This PR is automatically created. @atodorov please review!',
+        }
+    )
+
+    if data.has_key('html_url'): # PASS
+        print "Created PR %s" % data['html_url']
+        sys.exit(0)
+    else: # FAIL
+        print data['message']
+        sys.exit(1)
