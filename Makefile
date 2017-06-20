@@ -19,6 +19,6 @@ test: bdcs-api
 	RUST_BACKTRACE=1 cargo test --features "strict"
 
 depclose-travis: bdcs-api
-	wget https://s3.amazonaws.com/atodorov/metadata_centos7.db.gz && \
-	gunzip ./metadata_centos7.db.gz && \
-	METADATA_DB=$(shell /usr/bin/realpath ./metadata_centos7.db) make -C ./tests/depclose-integration/ test
+	wget https://s3.amazonaws.com/atodorov/metadata_centos7.db.gz
+	gunzip ./metadata_centos7.db.gz
+	METADATA_DB=`realpath ./metadata_centos7.db` make -C ./tests/depclose-integration/ test
